@@ -1,0 +1,11 @@
+[package]
+name = "solana-example-program"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+borsh = "1.5"
+solana-program = "2.0.14"
+
+[lib]
+crate-type = ["cdylib"]
