@@ -3461,8 +3461,17 @@ dependencies = [
  "clap",
  "dirs",
  "solana-client",
+ "solana-example-program",
  "solana-program",
  "solana-sdk",
+]
+
+[[package]]
+name = "solana-example-program"
+version = "0.1.0"
+dependencies = [
+ "borsh 1.5.2",
+ "solana-program",
 ]
 
 [[package]]
