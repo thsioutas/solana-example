@@ -15,18 +15,32 @@ use std::io::Write;
 
 entrypoint!(process_instruction);
 
+/// Instructions that the Solana example program can handle.
+///
+/// - `Transfer`: Transfers a specified amount of SOL from the payer to the recipient.
+/// - `Reset`: Resets the cumulative transferred amount to zero (admin-only operation).
 #[derive(BorshDeserialize, BorshSerialize, Debug)]
 pub enum SolanaExampleInstruction {
     Transfer { amount: u64 },
     Reset,
 }
 
-/// Persistent state structure to track total transferred SOL.
+/// Persistent state structure to track the cumulative SOL transferred.
+/// This structure is stored in the state account.
 #[derive(BorshDeserialize, BorshSerialize, Debug)]
 struct TransferState {
     total_transferred: u64,
 }
 
+/// Main entrypoint for the Solana example program.
+///
+/// This function deserializes the instruction data and dispatches it
+/// to the appropriate processing function.
+///
+/// # Arguments
+/// - `program_id`: The public key of the program.
+/// - `accounts`: The list of accounts required by the instruction.
+/// - `instruction_data`: The serialized instruction data.
 fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
@@ -86,6 +100,7 @@ fn ensure_state_account<'a>(
     Ok(())
 }
 
+/// Ensures that the recipient account is created and initialized if it doesn't already exist.
 fn ensure_recipient_account<'a>(
     payer: &AccountInfo<'a>,
     recipient: &AccountInfo<'a>,
@@ -116,6 +131,13 @@ fn ensure_recipient_account<'a>(
     Ok(())
 }
 
+/// Handles the transfer of SOL from the payer to the recipient, updating the cumulative total
+/// in the `state_account`.
+///
+/// # Arguments
+/// - `accounts`: The list of accounts required for the transfer.
+/// - `amount`: The amount of lamports to transfer.
+/// - `program_id`: The public key of the program.
 fn sol_transfer(accounts: &[AccountInfo], amount: u64, program_id: &Pubkey) -> ProgramResult {
     let accounts_iter = &mut accounts.iter();
 
@@ -165,7 +187,11 @@ fn sol_transfer(accounts: &[AccountInfo], amount: u64, program_id: &Pubkey) -> P
     Ok(())
 }
 
-/// Resets the total transferred amount; only the admin can do this.
+/// Resets the cumulative transferred amount to zero. This action can only be
+/// performed by an authorized admin account.
+///
+/// # Arguments
+/// - `accounts`: The list of accounts required to reset the state.
 fn reset_total_transferred(accounts: &[AccountInfo]) -> ProgramResult {
     let accounts_iter = &mut accounts.iter();
     // Retrieve the necessary accounts
